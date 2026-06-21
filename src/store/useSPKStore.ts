@@ -1,6 +1,6 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import type { SPKState, SPKActions } from '@/types'
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import type { SPKState, SPKActions } from "@/types";
 
 const initialState: SPKState = {
   currentDatasetId: null,
@@ -17,7 +17,7 @@ const initialState: SPKState = {
   },
   isLoading: false,
   isSaving: false,
-}
+};
 
 export const useSPKStore = create<SPKState & SPKActions>()(
   persist(
@@ -30,25 +30,36 @@ export const useSPKStore = create<SPKState & SPKActions>()(
       setAlternatif: (alternatif) => set({ alternatif }),
 
       addAlternatif: () =>
-        set((state) => ({
-          alternatif: [
+        set((state) => {
+          const newAlternatif = [
             ...state.alternatif,
-            { nama: '', urutan: state.alternatif.length + 1 },
-          ],
-        })),
+            { nama: "", urutan: state.alternatif.length + 1 },
+          ];
+
+          // Tambahkan baris baru ke matriks dengan nilai 0 untuk setiap kriteria
+          const newMatriks = [
+            ...state.matriks,
+            Array(state.kriteria.length).fill(0),
+          ];
+
+          return {
+            alternatif: newAlternatif,
+            matriks: newMatriks,
+          };
+        }),
 
       removeAlternatif: (index) =>
         set((state) => ({
           alternatif: state.alternatif
             .filter((_, i) => i !== index)
             .map((a, i) => ({ ...a, urutan: i + 1 })),
-          matriks: state.matriks.filter((_, i) => i !== index),
+          matriks: state.matriks.filter((_, i) => i !== index), // ✅ Sudah benar
         })),
 
       updateAlternatif: (index, nama) =>
         set((state) => ({
           alternatif: state.alternatif.map((a, i) =>
-            i === index ? { ...a, nama } : a
+            i === index ? { ...a, nama } : a,
           ),
         })),
 
@@ -58,12 +69,17 @@ export const useSPKStore = create<SPKState & SPKActions>()(
         set((state) => {
           const newKriteria = [
             ...state.kriteria,
-            { nama: '', tipe: 'benefit' as const, bobot: 0, urutan: state.kriteria.length + 1 },
-          ]
+            {
+              nama: "",
+              tipe: "benefit" as const,
+              bobot: 0,
+              urutan: state.kriteria.length + 1,
+            },
+          ];
           return {
             kriteria: newKriteria,
             matriks: state.matriks.map((row) => [...row, 0]),
-          }
+          };
         }),
 
       removeKriteria: (index) =>
@@ -71,13 +87,15 @@ export const useSPKStore = create<SPKState & SPKActions>()(
           kriteria: state.kriteria
             .filter((_, i) => i !== index)
             .map((k, i) => ({ ...k, urutan: i + 1 })),
-          matriks: state.matriks.map((row) => row.filter((_, i) => i !== index)),
+          matriks: state.matriks.map((row) =>
+            row.filter((_, i) => i !== index),
+          ),
         })),
 
       updateKriteria: (index, field, value) =>
         set((state) => ({
           kriteria: state.kriteria.map((k, i) =>
-            i === index ? { ...k, [field]: value } : k
+            i === index ? { ...k, [field]: value } : k,
           ),
         })),
 
@@ -86,7 +104,7 @@ export const useSPKStore = create<SPKState & SPKActions>()(
       updateMatriksCell: (row, col, value) =>
         set((state) => ({
           matriks: state.matriks.map((r, i) =>
-            i === row ? r.map((c, j) => (j === col ? value : c)) : r
+            i === row ? r.map((c, j) => (j === col ? value : c)) : r,
           ),
         })),
 
@@ -99,7 +117,7 @@ export const useSPKStore = create<SPKState & SPKActions>()(
       resetAll: () => set(initialState),
     }),
     {
-      name: 'spk-storage',
+      name: "spk-storage",
       partialize: (state) => ({
         alternatif: state.alternatif,
         kriteria: state.kriteria,
@@ -108,6 +126,6 @@ export const useSPKStore = create<SPKState & SPKActions>()(
         currentDatasetId: state.currentDatasetId,
         currentDatasetNama: state.currentDatasetNama,
       }),
-    }
-  )
-)
+    },
+  ),
+);

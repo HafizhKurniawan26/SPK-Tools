@@ -52,11 +52,19 @@ export function MatriksInput() {
                     <Input
                       type="number"
                       step="any"
-                      value={matriks[i]?.[j] ?? ""}
-                      onChange={(e) =>
-                        updateMatriksCell(i, j, parseFloat(e.target.value) || 0)
+                      value={
+                        matriks[i]?.[j] === 0 ? "" : (matriks[i]?.[j] ?? "")
                       }
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        updateMatriksCell(
+                          i,
+                          j,
+                          val === "" ? 0 : parseFloat(val) || 0,
+                        );
+                      }}
                       className="w-24"
+                      placeholder="0"
                     />
                   </td>
                 ))}
